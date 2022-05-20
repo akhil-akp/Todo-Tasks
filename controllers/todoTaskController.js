@@ -141,31 +141,27 @@ exports.getAllTodoTasksByTitle = async (req, res, next) => {
   }
 };
 
-exports.deleteMultipleTasks = (req, res, next) => {
+exports.deleteMultipleTasks = async (req, res, next) => {
   try {
     let taskIds = req.body.id;
 
-    const todoResult = taskIds.map(async (taskId, index) => await TodoTask.findByIdAndDelete({ _id: taskId }));
-    Promise.all(todoResult)
-      .then((response) => {
-        const cleanArr = arraySanitize(response);
-        if (cleanArr.length > 0) {
-          res.status(200).json({
-            status: 'success',
-            data: {
-              message: `Successfully deleted  ${taskIds.length} tasks`,
-            },
-          });
-        } else {
-          res.status(404).json({
-            status: 'fail',
-            message: 'Ids are not found!',
-          });
-        }
-      })
-      .catch((error) => {
-        errCatch(res, 400, error);
+    const todoResult = await Promise.all(
+      taskIds.map(async (taskId, index) => await TodoTask.findByIdAndDelete({ _id: taskId }))
+    );
+    const cleanArr = arraySanitize(todoResult);
+    if (cleanArr.length > 0) {
+      res.status(200).json({
+        status: 'success',
+        data: {
+          message: `Successfully deleted  ${taskIds.length} tasks`,
+        },
       });
+    } else {
+      res.status(404).json({
+        status: 'fail',
+        message: 'Ids are not found!',
+      });
+    }
   } catch (err) {
     errCatch(res, 400, err);
   }

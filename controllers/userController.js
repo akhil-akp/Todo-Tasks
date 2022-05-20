@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const { errCatch } = require('./utils');
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -11,8 +12,8 @@ exports.getAllUsers = async (req, res, next) => {
         user,
       },
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    errCatch(res, 404, err);
   }
   next();
 };
@@ -28,7 +29,7 @@ exports.createUser = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    errCatch(res, 400, err);
   }
   next();
 };
