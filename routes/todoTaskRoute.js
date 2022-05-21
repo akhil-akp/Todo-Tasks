@@ -13,10 +13,11 @@ router
     todoTaskController.resizeUplodedImage,
     todoTaskController.updateTodoTask
   )
-  .delete(todoTaskController.deleteTodoTask);
+  .delete(todoTaskController.deleteTodoTasks); //This route can delete single and multiple tasks
 
-router.get('/:title', todoTaskController.getAllTodoTasksByTitle);
+router.get('/:title', todoTaskController.getTodoTasksByTitle);
 
+//This route for delete mutilple tasks by putting ids in obdy
 router.delete('/', todoTaskController.deleteMultipleTasks);
 
 module.exports = router;

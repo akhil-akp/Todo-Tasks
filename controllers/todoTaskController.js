@@ -103,21 +103,24 @@ exports.updateTodoTask = async (req, res, next) => {
   }
 };
 
-exports.deleteTodoTask = async (req, res, next) => {
+//Delete SINGLE or MUTIPLE todo tasks
+exports.deleteTodoTasks = async (req, res, next) => {
   try {
-    const todoTask = await TodoTask.findByIdAndDelete(req.params?.id);
+    let paramsIds = req.params.id.split(',');
 
-    if (todoTask) {
-      res.status(204).json({
+    const todoResults = await Promise.all(
+      paramsIds.map(async (taskId) => await TodoTask.findByIdAndDelete({ _id: taskId }))
+    );
+    const cleanArr = arraySanitize(todoResults);
+    if (cleanArr.length > 0) {
+      res.status(200).json({
         status: 'success',
-        data: {
-          todoTask: null,
-        },
+        message: `${paramsIds.length} todo tasks has been deleted successfully!`,
       });
     } else {
       res.status(404).json({
         status: 'fail',
-        message: 'Id is not found!',
+        message: 'Ids is not found!',
       });
     }
   } catch (err) {
@@ -125,13 +128,13 @@ exports.deleteTodoTask = async (req, res, next) => {
   }
 };
 
-exports.getAllTodoTasksByTitle = async (req, res, next) => {
+exports.getTodoTasksByTitle = async (req, res, next) => {
   try {
     let title = req.params.title;
     const todoTask = await TodoTask.find({ title: new RegExp(title, 'i') });
-
     res.status(200).json({
       status: 'success',
+      results: todoTask.length,
       data: {
         todoTask,
       },
@@ -140,6 +143,8 @@ exports.getAllTodoTasksByTitle = async (req, res, next) => {
     errCatch(res, 404, err);
   }
 };
+
+//Delete MUTILPE tasks by putting ids in BODY
 
 exports.deleteMultipleTasks = async (req, res, next) => {
   try {
